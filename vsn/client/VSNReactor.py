@@ -5,12 +5,12 @@ import time
 import cv2
 import numpy
 
-from client.VSNImageProcessor import VSNImageProcessor
-from client.VSNActivityController import VSNActivityController
+from vsn.client.VSNImageProcessor import VSNImageProcessor
+from vsn.client.VSNActivityController import VSNActivityController
 from vsn.common.VSNPacket import DataPacketToServer, ClientPacketRouter, ConfigurationPacketToServer
-from client.VSNClient import VSNClient
-from connectivity import multicast
-from client.VSNUpdater import VSNUpdater
+from vsn.client.VSNClient import VSNClient
+from vsn.connectivity import multicast
+from vsn.client.VSNUpdater import VSNUpdater
 from vsn.common.VSNUtility import ImageType, Config
 from vsn.common.version import __version__
 
