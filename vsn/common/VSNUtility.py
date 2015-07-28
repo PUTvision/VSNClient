@@ -11,7 +11,7 @@ from vsn.common.decorators import autoinitialized
 class Config:
     @classmethod
     def initialize(cls):
-        for loc in os.curdir, os.path.expanduser('~/.config/vsn'), '/etc/vsn':
+        for loc in '../' + os.curdir, os.path.expanduser('~/.config/vsn'), '/etc/vsn':
             try:
                 with open(os.path.join(loc, 'vsn_config.yml')) as stream:
                     for key, value in yaml.load(stream).items():
