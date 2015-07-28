@@ -2,15 +2,14 @@ import asyncio
 import logging
 import socket
 import time
-
 import cv2
 import numpy
+
 from client.VSNImageProcessor import VSNImageProcessor
 from client.VSNActivityController import VSNActivityController
 from vsn.common.VSNPacket import DataPacketToServer, ClientPacketRouter, ConfigurationPacketToServer
 from client.VSNClient import VSNClient
 from connectivity import multicast
-
 from client.VSNUpdater import VSNUpdater
 from vsn.common.VSNUtility import ImageType, Config
 from vsn.common.version import __version__
@@ -91,8 +90,9 @@ class VSNReactor:
         )
 
     def __process_configuration_packet(self, packet):
-        logging.debug('Received configuration packet: %r %r %r' % (packet.node_id, packet.parameters_below_threshold,
-                                                           packet.parameters_above_threshold))
+        logging.info('Received configuration packet; node_id: %r; send_image: %r; image_type: %r' % (packet.node_id,
+                                                                                                     packet.send_image,
+                                                                                                     packet.image_type))
 
         self.__activity_controller = VSNActivityController(packet.parameters_below_threshold,
                                                            packet.parameters_above_threshold,
