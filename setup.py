@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 
 from setuptools import setup
-from common.version import __version__
+
+from vsn.common.version import __version__
 
 with open('./requirements.txt') as requirements_txt:
     requirements = [line for line in requirements_txt]
@@ -12,6 +13,6 @@ setup(name='VSN',
       author='PUT VISION LAB',
       url='https://github.com/sepherro/cam_network',
       install_requires=requirements,
-      packages=['server', 'client', 'common', 'connectivity'],
-      scripts=['VSNClientCV', 'VSNClientPiCamera', 'VSNServer', 'VSNHistoryPlotter', 'VSNUpdater'],
+      packages=['vsn', 'vsn.server', 'vsn.client', 'vsn.common', 'vsn.connectivity'],
+      scripts=['vsn/VSNClientCV', 'vsn/VSNClientPiCamera', 'vsn/VSNServer', 'vsn/VSNHistoryPlotter', 'vsn/VSNUpdater'],
       )

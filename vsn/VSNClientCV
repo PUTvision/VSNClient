@@ -1,0 +1,18 @@
+#!/usr/bin/env python
+
+import logging
+import argparse
+
+from vsn.client import VSNReactor
+from vsn.client import VSNCVCamera
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description='Handle camera with OpenCV and V4L2')
+    parser.add_argument('--log', dest='loglevel', type=str, default='warning',
+                        help='set logging level (debug, info, warning, error or critical; default: warning)')
+    args = parser.parse_args()
+
+    logging.basicConfig(format='%(levelname)s: %(message)s',
+                        level=getattr(logging, args.loglevel.upper(), logging.WARNING))
+    picam = VSNReactor(VSNCVCamera(camera_number=0))
+    picam.start()
