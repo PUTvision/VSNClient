@@ -4,7 +4,7 @@ from enum import Enum
 
 import yaml
 
-from vsn.common import autoinitialized
+from vsn.common.decorators import autoinitialized
 
 
 @autoinitialized

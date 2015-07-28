@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 from vsn.client import VSNReactor
-from vsn.client import VSNPiCamera
+from vsn.client.VSNCamera import VSNPiCamera
 
 if __name__ == '__main__':
     picam = VSNReactor(VSNPiCamera())

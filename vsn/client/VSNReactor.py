@@ -7,13 +7,13 @@ import cv2
 import numpy
 from client.VSNImageProcessor import VSNImageProcessor
 from client.VSNActivityController import VSNActivityController
-from common.VSNPacket import DataPacketToServer, ClientPacketRouter, ConfigurationPacketToServer
+from vsn.common.VSNPacket import DataPacketToServer, ClientPacketRouter, ConfigurationPacketToServer
 from client.VSNClient import VSNClient
 from connectivity import multicast
 
 from client.VSNUpdater import VSNUpdater
 from vsn.common.VSNUtility import ImageType, Config
-from common.version import __version__
+from vsn.common.version import __version__
 
 
 class VSNReactor:
