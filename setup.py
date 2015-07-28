@@ -13,6 +13,6 @@ setup(name='VSN',
       author='PUT VISION LAB',
       url='https://github.com/sepherro/cam_network',
       install_requires=requirements,
-      packages=['vsn', 'vsn.server', 'vsn.client', 'vsn.common', 'vsn.connectivity'],
+      packages=['vsn.server', 'vsn.client', 'vsn.common', 'vsn.connectivity'],
       scripts=['vsn/VSNClientCV', 'vsn/VSNClientPiCamera', 'vsn/VSNServer', 'vsn/VSNHistoryPlotter', 'vsn/VSNUpdater'],
       )
