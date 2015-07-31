@@ -1,4 +1,4 @@
 PyYAML
 quamash
--e git://github.com/pyqtgraph/pyqtgraph.git#egg=pyqtgraph
+pyqtgraph
 picamera
