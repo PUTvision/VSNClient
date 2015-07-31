@@ -39,16 +39,24 @@ class VSNActivityController:
         if parameters_above_threshold is not None:
             self.__parameters_above_threshold = parameters_above_threshold
 
-    def get_sample_time(self):
+    @property
+    def sample_time(self):
         return self.__parameters.sample_time
 
-    def get_percentage_of_active_pixels(self):
+    @property
+    def percentage_of_active_pixels(self):
         return self.__percentage_of_active_pixels
 
-    def get_activation_level(self):
+    @property
+    def activation_level(self):
         return self.__activation_level
 
-    def is_activation_below_threshold(self):
+    @property
+    def gain(self):
+        return self.__parameters.gain
+
+    @property
+    def activation_is_below_threshold(self):
         result = False
         if self.__activation_level < self.__activation_level_threshold:
             result = True
@@ -78,14 +86,3 @@ class VSNActivityController:
             self.__parameters = self.__parameters_below_threshold
         else:
             self.__parameters = self.__parameters_above_threshold
-
-    def get_state_as_string(self):
-        return 'Params: \r\n' + \
-               '% of active pixels: ' + \
-               str(self.__percentage_of_active_pixels) + \
-               ', activation level: ' + \
-               str(self.__activation_level) + \
-               ', gain: ' + \
-               str(self.__parameters.gain) + \
-               ', sample time: ' + \
-               str(self.__parameters.sample_time)

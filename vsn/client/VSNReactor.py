@@ -44,28 +44,28 @@ class VSNReactor:
         self.__do_regular_update_time = current_time
 
         # Queue the next call
-        self.__update_task = self.__event_loop.call_later(self.__activity_controller.get_sample_time(),
+        self.__update_task = self.__event_loop.call_later(self.__activity_controller.sample_time,
                                                           self.__do_regular_update)
 
         time_start = time.perf_counter()
 
         percentage_of_active_pixels = self.__image_processor.get_percentage_of_active_pixels_in_frame(
-            self.__camera.grab_image(slow_mode=self.__activity_controller.is_activation_below_threshold()))
+            self.__camera.grab_image(slow_mode=self.__activity_controller.activation_is_below_threshold))
         self.__activity_controller.update_sensor_state_based_on_captured_image(percentage_of_active_pixels)
 
         time_after_get_percentage = time.perf_counter()
 
-        logging.debug(self.__activity_controller.get_state_as_string())
-
-        if self.__send_image:
-            image_as_string = self.__encode_image_for_sending()
-        else:
+        if self.__activity_controller.activation_is_below_threshold and not self.__send_image:
             image_as_string = None
+        else:
+            image_as_string = self.__encode_image_for_sending()
 
         time_after_encoding = time.perf_counter()
 
         self.__client.send(DataPacketToServer(percentage_of_active_pixels,
-                                              self.__activity_controller.get_activation_level(),
+                                              self.__activity_controller.activation_level,
+                                              self.__activity_controller.gain,
+                                              self.__activity_controller.sample_time,
                                               image_as_string))
 
         time_after_sending_packet = time.perf_counter()
@@ -133,7 +133,7 @@ class VSNReactor:
     def start(self):
         if self.__node_id is not None:
             self.__waiting_for_configuration = False
-            self.__update_task = self.__event_loop.call_later(self.__activity_controller.get_sample_time(),
+            self.__update_task = self.__event_loop.call_later(self.__activity_controller.sample_time,
                                                               self.__do_regular_update)
         else:
             self.__waiting_for_configuration = True

@@ -22,14 +22,11 @@ class ConfigurationPacketToServer:
 
 
 class DataPacketToServer:
-    def __init__(self, white_pixels, activation_level, image=None):
+    def __init__(self, white_pixels: float, activation_level: float, gain: float, sample_time: float, image=None):
         self.white_pixels = white_pixels
         self.activation_level = activation_level
-        self.image = image
-
-    def set(self, white_pixels, activation_level, image=None):
-        self.white_pixels = white_pixels
-        self.activation_level = activation_level
+        self.gain = gain
+        self.sample_time = sample_time
         self.image = image
 
 

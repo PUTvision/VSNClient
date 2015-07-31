@@ -1,6 +1,7 @@
 import os
 import sys
 from enum import Enum
+from collections import namedtuple
 
 import yaml
 
@@ -26,6 +27,10 @@ class GainSampletimeTuple:
     def __init__(self, gain, sample_time):
         self.gain = gain
         self.sample_time = sample_time
+
+
+CameraStatistics = namedtuple('CameraStatistics', ['active_pixels', 'activity_level', 'neighbours_activation',
+                                                   'gain', 'sample_time', 'low_power_ticks', 'normal_ticks'])
 
 
 class ImageType(Enum):

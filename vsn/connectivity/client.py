@@ -27,7 +27,7 @@ class TCPClient(metaclass=ABCMeta):
 
         try:
             yield from self.__writer.drain()
-        except ConnectionResetError:
+        except (ConnectionResetError, BrokenPipeError):
             self.connection_lost(deliberate=False)
 
     @asyncio.coroutine
@@ -40,7 +40,7 @@ class TCPClient(metaclass=ABCMeta):
                 pickled_obj = yield from self.__reader.readexactly(length)
                 obj = pickle.loads(pickled_obj)
                 self.data_received(obj)
-        except asyncio.streams.IncompleteReadError:
+        except (asyncio.streams.IncompleteReadError, ConnectionResetError, BrokenPipeError):
             self.connection_lost(deliberate=False)
         except asyncio.CancelledError:
             self.connection_lost(deliberate=True)
