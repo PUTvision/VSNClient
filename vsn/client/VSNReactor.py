@@ -23,7 +23,7 @@ class VSNReactor:
         self.__image_type = ImageType.foreground
 
         self.__client = VSNClient(multicast.Client().receive_ip(),
-                                  Config.server['listening_port'],
+                                  Config.settings['server']['listening_port'],
                                   ClientPacketRouter(self.__process_data_packet, self.__process_configuration_packet,
                                                      self.__process_disconnect_packet))
 
