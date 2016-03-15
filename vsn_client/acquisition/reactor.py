@@ -1,18 +1,18 @@
 import asyncio
+import cv2
 import logging
 import socket
 import time
-import cv2
+
 import numpy
 
-from vsn.client.VSNImageProcessor import VSNImageProcessor
-from vsn.client.VSNActivityController import VSNActivityController
-from vsn.common.VSNPacket import DataPacketToServer, ClientPacketRouter, ConfigurationPacketToServer
-from vsn.client.VSNClient import VSNClient
-from vsn.connectivity import multicast
-from vsn.client.VSNUpdater import VSNUpdater
-from vsn.common.VSNUtility import ImageType, Config
-from vsn.common.version import __version__
+from vsn_client import __version__
+from vsn_client.common.packet import DataPacketToServer, ClientPacketRouter, ConfigurationPacketToServer
+from vsn_client.common.utility import ImageType
+from vsn_client.connectivity import multicast
+from vsn_client.connectivity.client import VSNClient
+from vsn_client.processing.activity import VSNActivityController
+from vsn_client.processing.image import VSNImageProcessor
 
 
 class VSNReactor:
@@ -23,7 +23,7 @@ class VSNReactor:
         self.__image_type = ImageType.foreground
 
         self.__client = VSNClient(multicast.Client().receive_ip(),
-                                  Config.settings['server']['listening_port'],
+                                  50001,
                                   ClientPacketRouter(self.__process_data_packet, self.__process_configuration_packet,
                                                      self.__process_disconnect_packet))
 
@@ -118,13 +118,6 @@ class VSNReactor:
 
         if packet.send_image is not None:
             self.__send_image = packet.send_image
-
-        if packet.pkgs_to_update is not None:
-            self.__update_task.cancel()
-            self.__client.disconnect()
-
-            updater = VSNUpdater(packet.pkgs_to_update)
-            updater.update()
 
     def __process_disconnect_packet(self, packet):
         self.__update_task.cancel()

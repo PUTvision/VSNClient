@@ -6,7 +6,7 @@ from subprocess import check_call, CalledProcessError
 
 import cv2
 
-from vsn.common.VSNUtility import Config
+from vsn_client.common.utility import Config
 
 
 class VSNCamera(metaclass=ABCMeta):
@@ -79,3 +79,4 @@ class VSNPiCamera(VSNCamera):
         self.__current_capture_thread = Thread(target=self.__grab_image)
         self.__current_capture_thread.start()
         return self.__stream.array
+

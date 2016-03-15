@@ -1,9 +1,9 @@
 import logging
 
-from vsn.connectivity import client
+from vsn_client.connectivity import client_base
 
 
-class VSNClient(client.TCPClient):
+class VSNClient(client_base.TCPClient):
     def __init__(self, server_address: str, server_port: int, packet_router):
         self.__packet_router = packet_router
 
@@ -21,4 +21,5 @@ class VSNClient(client.TCPClient):
         self._loop.stop()
 
     def data_received(self, received_object: object):
+        logging.debug('Data received')
         self.__packet_router.route_packet(received_object)

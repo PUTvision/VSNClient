@@ -5,7 +5,7 @@ from collections import namedtuple
 
 import yaml
 
-from vsn.common.decorators import autoinitialized
+from vsn_client.common.decorators import autoinitialized
 
 
 @autoinitialized
@@ -21,7 +21,7 @@ class Config:
 
     @classmethod
     def initialize(cls):
-        for loc in '../' + os.curdir, os.path.expanduser('~/.config/vsn'), '/etc/vsn':
+        for loc in os.pardir, os.path.expanduser('~/.config/vsn_client'), '/etc/vsn_client':
             try:
                 with open(os.path.join(loc, 'vsn_config.yml')) as stream:
                     for key, value in yaml.load(stream).items():

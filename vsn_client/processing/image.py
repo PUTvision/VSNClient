@@ -1,6 +1,6 @@
 import cv2
 
-from vsn.common.VSNUtility import ImageType
+from vsn_client.common.utility import ImageType
 
 
 class VSNImageProcessor:
