@@ -18,8 +18,8 @@ class VSNCamera(metaclass=ABCMeta):
 class VSNCVCamera(VSNCamera):
     def __init__(self, camera_number: int):
         self.__camera = cv2.VideoCapture(camera_number)
-        self.__camera.set(cv2.CAP_PROP_FRAME_WIDTH, Config.settings['clients']['image_size']['width'])
-        self.__camera.set(cv2.CAP_PROP_FRAME_HEIGHT, Config.settings['clients']['image_size']['height'])
+        self.__camera.set(cv2.CAP_PROP_FRAME_WIDTH, Config['clients']['image_size']['width'])
+        self.__camera.set(cv2.CAP_PROP_FRAME_HEIGHT, Config['clients']['image_size']['height'])
 
         # OpenCV support for setting v4l2 controls is broken
         try:
@@ -56,12 +56,12 @@ class VSNPiCamera(VSNCamera):
         self.__camera.awb_gains = awb_gains
         self.__camera.exposure_mode = 'off'
 
-        self.__camera.resolution = (Config.settings['clients']['image_size']['width'],
-                                    Config.settings['clients']['image_size']['height'])
-        self.__camera.framerate = Config.settings['clients']['frame_rate']
+        self.__camera.resolution = (Config.__settings['clients']['image_size']['width'],
+                                    Config.__settings['clients']['image_size']['height'])
+        self.__camera.framerate = Config.__settings['clients']['frame_rate']
         self.__stream = picamera.array.PiRGBArray(self.__camera,
-                                                  size=(Config.settings['clients']['image_size']['width'],
-                                                        Config.settings['clients']['image_size']['height']))
+                                                  size=(Config.__settings['clients']['image_size']['width'],
+                                                        Config.__settings['clients']['image_size']['height']))
         self.__current_capture_thread = None
 
         self.__camera.capture(self.__stream, format='bgr', use_video_port=True)

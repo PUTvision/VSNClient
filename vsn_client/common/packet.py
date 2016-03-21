@@ -7,12 +7,12 @@ class ConfigurationPacketToClient:
         self.image_type = image_type
         self.send_image = send_image
         self.pkgs_to_update = pkgs_to_update
-        self.hostname_based_ids = Config.settings['clients']['hostname_based_ids']
-        self.image_size = Config.settings['clients']['image_size']
-        self.frame_rate = Config.settings['clients']['frame_rate']
-        self.parameters_below_threshold = Config.settings['clients']['parameters_below_threshold']
-        self.parameters_above_threshold = Config.settings['clients']['parameters_above_threshold']
-        self.activation_level_threshold = Config.settings['clients']['activation_level_threshold']
+        self.hostname_based_ids = Config.__settings['clients']['hostname_based_ids']
+        self.image_size = Config.__settings['clients']['image_size']
+        self.frame_rate = Config.__settings['clients']['frame_rate']
+        self.parameters_below_threshold = Config['clients']['parameters_below_threshold']
+        self.parameters_above_threshold = Config['clients']['parameters_above_threshold']
+        self.activation_level_threshold = Config['clients']['activation_level_threshold']
 
 
 class ConfigurationPacketToServer:
@@ -39,7 +39,8 @@ class DataPacketToClient:
 
 
 class ClientPacketRouter:
-    def __init__(self, data_packet_callback: callable([object]), configuration_packet_callback: callable([object]),
+    def __init__(self, data_packet_callback: callable([object]),
+                 configuration_packet_callback: callable([object]),
                  disconnect_packet_callback: callable([object])):
         self.__data_packet_callback = data_packet_callback
         self.__configuration_packet_callback = configuration_packet_callback

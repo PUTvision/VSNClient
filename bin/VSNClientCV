@@ -8,12 +8,18 @@ from vsn_client.acquisition.camera import VSNCVCamera
 from vsn_client.acquisition.reactor import VSNReactor
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Handle camera with OpenCV and V4L2')
+    parser = argparse.ArgumentParser(
+        description='Handle camera with OpenCV and V4L2')
+    parser.add_argument('-s', dest='standalone', action='store_true',
+                        default=False, help='run in standalone mode')
     parser.add_argument('--log', dest='loglevel', type=str, default='warning',
-                        help='set logging level (debug, info, warning, error or critical; default: warning)')
+                        help='set logging level (debug, info, warning, '
+                             'error or critical; default: warning)')
     args = parser.parse_args()
 
     logging.basicConfig(format='%(levelname)s: %(message)s',
-                        level=getattr(logging, args.loglevel.upper(), logging.WARNING))
-    picam = VSNReactor(VSNCVCamera(camera_number=0))
+                        level=getattr(logging, args.loglevel.upper(),
+                                      logging.WARNING))
+
+    picam = VSNReactor(VSNCVCamera(camera_number=0), args.standalone)
     picam.start()
