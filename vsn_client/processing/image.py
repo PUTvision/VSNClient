@@ -1,14 +1,17 @@
 import cv2
+import numpy as np
 
 from vsn_client.common.utility import ImageType
 
 
 class VSNImageProcessor:
     def __init__(self, initial_frame):
-        self.__background_image = cv2.cvtColor(initial_frame, cv2.COLOR_BGR2GRAY)
+        self.__background_image = cv2.cvtColor(initial_frame,
+                                               cv2.COLOR_BGR2GRAY)
         self.__foreground_image = self.__background_image
         self.__difference_thresholded_image = self.__background_image
-        self.__structing_element = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))
+        self.__structing_element = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,
+                                                             (3, 3))
 
     def get_image(self, image_type: ImageType):
         if image_type == ImageType.foreground:
@@ -25,17 +28,18 @@ class VSNImageProcessor:
         self.__foreground_image = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
         # calculate the difference between current and background frame
-        difference = cv2.absdiff(self.__background_image, self.__foreground_image)
+        difference = cv2.absdiff(self.__background_image,
+                                 self.__foreground_image)
 
         # process the difference
         # use median blur
         blurred = cv2.medianBlur(difference, 3)
 
         # do the thresholding
-        display = cv2.compare(blurred, 6, cv2.CMP_GT)
+        thresholded = cv2.compare(blurred, 6, cv2.CMP_GT)
 
         # erode and dilate
-        eroded = cv2.erode(display, self.__structing_element)
+        eroded = cv2.erode(thresholded, self.__structing_element)
         dilated = cv2.dilate(eroded, self.__structing_element)
 
         # store the difference image for further usage
@@ -49,11 +53,11 @@ class VSNImageProcessor:
         percentage_of_nonzero_pixels = (nonzero_pixels * 100 / (height * width))
 
         # prepare data for background update
-        mask_gt = cv2.compare(self.__background_image, self.__foreground_image, cv2.CMP_GT)
-        mask_lt = cv2.compare(self.__background_image, self.__foreground_image, cv2.CMP_LT)
+        mask_gt = np.greater(self.__background_image, self.__foreground_image)
+        mask_lt = np.less(self.__background_image, self.__foreground_image)
 
         # update the background
-        self.__background_image += mask_lt >> 7
-        self.__background_image -= mask_gt >> 7
+        self.__background_image += mask_lt
+        self.__background_image -= mask_gt
 
         return percentage_of_nonzero_pixels
