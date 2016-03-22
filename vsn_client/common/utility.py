@@ -12,6 +12,9 @@ class ConfigMeta(type):
     def __getitem__(self, name):
         return self._settings[name]
 
+    def __setitem__(self, key, value):
+        self._settings[key] = value
+
 
 @autoinitialized
 class Config(metaclass=ConfigMeta):
@@ -26,7 +29,8 @@ class Config(metaclass=ConfigMeta):
 
     @classmethod
     def initialize(cls):
-        for loc in os.pardir, os.path.expanduser('~/.config/vsn_client'), '/etc/vsn_client':
+        for loc in (os.pardir, os.path.expanduser('~/.config/vsn_client'),
+                    '/etc/vsn_client'):
             try:
                 with open(os.path.join(loc, 'vsn_config.yml')) as stream:
                     for key, value in yaml.load(stream).items():
@@ -39,18 +43,24 @@ class Config(metaclass=ConfigMeta):
         sys.exit('Could not find configuration file')
 
     @classmethod
-    def set_settings(cls, gain_below_threshold: float, sample_time_below_threshold: float,
-                     gain_above_threshold: float, sample_time_above_threshold: float,
+    def set_settings(cls, gain_below_threshold: float,
+                     sample_time_below_threshold: float,
+                     gain_above_threshold: float,
+                     sample_time_above_threshold: float,
                      activation_level_threshold: float, dependency_table: dict):
-        cls._settings['clients']['parameters_below_threshold']['gain'] = gain_below_threshold
-        cls._settings['clients']['parameters_below_threshold']['sample_time'] = sample_time_below_threshold
-        cls._settings['clients']['parameters_above_threshold']['gain'] = gain_above_threshold
-        cls._settings['clients']['parameters_above_threshold']['sample_time'] = sample_time_above_threshold
-        cls._settings['clients']['activation_level_threshold'] = activation_level_threshold
+        clients = cls['clients']
+        parameters_below_threshold = clients['parameters_below_threshold']
+        parameters_above_threshold = clients['parameters_above_threshold']
+
+        parameters_below_threshold['gain'] = gain_below_threshold
+        parameters_below_threshold['sample_time'] = sample_time_below_threshold
+        parameters_above_threshold['gain'] = gain_above_threshold
+        parameters_above_threshold['sample_time'] = sample_time_above_threshold
+        clients['activation_level_threshold'] = activation_level_threshold
 
         for camera_id, dependencies in dependency_table.items():
             for neighbour_id, dependency_value in dependencies.items():
-                cls._settings['dependencies'][camera_id][neighbour_id] = dependency_value
+                cls['dependencies'][camera_id][neighbour_id] = dependency_value
 
         cls.__execute_callbacks()
 
@@ -61,7 +71,8 @@ class Config(metaclass=ConfigMeta):
     @classmethod
     def save_settings(cls):
         try:
-            with open(os.path.join(cls.__config_file_location, 'vsn_config.yml'), 'w') as stream:
+            with open(os.path.join(cls.__config_file_location,
+                                   'vsn_config.yml'), 'w') as stream:
                 yaml.dump(cls._settings, stream)
         except Exception as e:
             print(type(e))

@@ -7,7 +7,8 @@ import time
 import numpy
 
 from vsn_client import __version__
-from vsn_client.common.packet import DataPacketToServer, ClientPacketRouter, ConfigurationPacketToServer
+from vsn_client.common.packet import DataPacketToServer, ClientPacketRouter, \
+    ConfigurationPacketToServer
 from vsn_client.common.utility import ImageType, Config
 from vsn_client.connectivity import multicast
 from vsn_client.connectivity.client import VSNClient
@@ -57,8 +58,10 @@ class VSNReactor:
         self.__do_regular_update_time = current_time
 
         # Queue the next call
-        self.__update_task = self.__event_loop.call_later(self.__activity_controller.sample_time,
-                                                          self.__do_regular_update)
+        self.__update_task = self.__event_loop.call_later(
+            self.__activity_controller.sample_time,
+            self.__do_regular_update
+        )
 
         frame = self.__camera.grab_image(
             slow_mode=self.__activity_controller.activation_is_below_threshold
@@ -70,13 +73,14 @@ class VSNReactor:
             self.__image_processor.get_percentage_of_active_pixels_in_frame(
                 frame
             )
-        self.__activity_controller.update_sensor_state_based_on_captured_image(
+        self.__activity_controller.update_sensor_state(
             percentage_of_active_pixels
         )
 
         time_after_get_percentage = time.perf_counter()
 
-        if self.__activity_controller.activation_is_below_threshold and not self.__send_image:
+        if self.__activity_controller.activation_is_below_threshold \
+                and not self.__send_image:
             image_as_string = None
         else:
             image_as_string = self.__encode_image_for_sending()
@@ -84,29 +88,44 @@ class VSNReactor:
         time_after_encoding = time.perf_counter()
 
         if self.__client:
-            self.__client.send(DataPacketToServer(percentage_of_active_pixels,
-                                                  self.__activity_controller.activation_level,
-                                                  self.__activity_controller.gain,
-                                                  self.__activity_controller.sample_time,
-                                                  image_as_string))
+            self.__client.send(
+                DataPacketToServer(percentage_of_active_pixels,
+                                   self.__activity_controller.activation_level,
+                                   self.__activity_controller.gain,
+                                   self.__activity_controller.sample_time,
+                                   image_as_string)
+            )
 
         time_after_sending_packet = time.perf_counter()
 
-        logging.debug('Calculating percentage took: %.2f ms' % ((time_after_get_percentage - time_start) * 1000))
-        logging.debug('Encoding took: %.2f ms' % ((time_after_encoding - time_after_get_percentage) * 1000))
-        logging.debug('Sending packet took: %.2f ms' % ((time_after_sending_packet - time_after_encoding) * 1000))
-        logging.debug('Percentage of active pixels: %.2f' % (percentage_of_active_pixels))
+        logging.debug('Calculating percentage took: %.2f ms' %
+                      ((time_after_get_percentage - time_start) * 1000)
+                      )
+        logging.debug(
+            'Encoding took: %.2f ms' %
+            ((time_after_encoding - time_after_get_percentage) * 1000)
+        )
+        logging.debug(
+            'Sending packet took: %.2f ms' %
+            ((time_after_sending_packet - time_after_encoding) * 1000)
+        )
+        logging.debug(
+            'Percentage of active pixels: %.2f' %
+            (percentage_of_active_pixels)
+        )
 
     def __encode_image_for_sending(self):
         encode_param = [int(cv2.IMWRITE_JPEG_QUALITY), 90]
         image_to_send = self.__image_processor.get_image(self.__image_type)
-        result, image_encoded = cv2.imencode('.jpg', image_to_send, encode_param)
+        result, image_encoded = cv2.imencode('.jpg', image_to_send,
+                                             encode_param)
         data = numpy.array(image_encoded)
         image_as_string = data.tostring()
         return image_as_string
 
     def __process_data_packet(self, packet):
-        logging.debug('Received neighbour activation: %.2f' % packet.activation_neighbours)
+        logging.debug('Received neighbour activation: %.2f'
+                      % packet.activation_neighbours)
 
         self.__activity_controller.set_params(
             activation_neighbours=packet.activation_neighbours
@@ -116,12 +135,14 @@ class VSNReactor:
         logging.info('Received configuration packet;'
                      ' node_id: %r; send_image: %r; image_type: %r' %
                      (packet.node_id,
-                     packet.send_image,
-                     packet.image_type))
+                      packet.send_image,
+                      packet.image_type))
 
-        self.__activity_controller = VSNActivityController(packet.parameters_below_threshold,
-                                                           packet.parameters_above_threshold,
-                                                           packet.activation_level_threshold)
+        self.__activity_controller = VSNActivityController(
+            packet.parameters_below_threshold,
+            packet.parameters_above_threshold,
+            packet.activation_level_threshold
+        )
         if packet.node_id is not None:
             # First configuration packet with node_id
             self.__node_id = packet.node_id

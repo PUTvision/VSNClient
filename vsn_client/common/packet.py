@@ -2,17 +2,21 @@ from vsn_client.common.utility import Config
 
 
 class ConfigurationPacketToClient:
-    def __init__(self, node_id: int=None, send_image=None, image_type=None, pkgs_to_update: list=None):
+    def __init__(self, node_id: int=None, send_image=None, image_type=None,
+                 pkgs_to_update: list=None):
         self.node_id = node_id
         self.image_type = image_type
         self.send_image = send_image
         self.pkgs_to_update = pkgs_to_update
-        self.hostname_based_ids = Config.__settings['clients']['hostname_based_ids']
-        self.image_size = Config.__settings['clients']['image_size']
-        self.frame_rate = Config.__settings['clients']['frame_rate']
-        self.parameters_below_threshold = Config['clients']['parameters_below_threshold']
-        self.parameters_above_threshold = Config['clients']['parameters_above_threshold']
-        self.activation_level_threshold = Config['clients']['activation_level_threshold']
+        self.hostname_based_ids = Config['clients']['hostname_based_ids']
+        self.image_size = Config['clients']['image_size']
+        self.frame_rate = Config['clients']['frame_rate']
+        self.parameters_below_threshold = Config['clients'][
+            'parameters_below_threshold']
+        self.parameters_above_threshold = Config['clients'][
+            'parameters_above_threshold']
+        self.activation_level_threshold = Config['clients'][
+            'activation_level_threshold']
 
 
 class ConfigurationPacketToServer:
@@ -22,7 +26,8 @@ class ConfigurationPacketToServer:
 
 
 class DataPacketToServer:
-    def __init__(self, white_pixels: float, activation_level: float, gain: float, sample_time: float, image=None):
+    def __init__(self, white_pixels: float, activation_level: float,
+                 gain: float, sample_time: float, image=None):
         self.white_pixels = white_pixels
         self.activation_level = activation_level
         self.gain = gain

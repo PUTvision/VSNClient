@@ -18,12 +18,14 @@ class VSNCamera(metaclass=ABCMeta):
 class VSNCVCamera(VSNCamera):
     def __init__(self, camera_number: int):
         self.__camera = cv2.VideoCapture(camera_number)
-        self.__camera.set(cv2.CAP_PROP_FRAME_WIDTH, Config['clients']['image_size']['width'])
-        self.__camera.set(cv2.CAP_PROP_FRAME_HEIGHT, Config['clients']['image_size']['height'])
+        self.__camera.set(cv2.CAP_PROP_FRAME_WIDTH,
+                          Config['clients']['image_size']['width'])
+        self.__camera.set(cv2.CAP_PROP_FRAME_HEIGHT,
+                          Config['clients']['image_size']['height'])
 
         # OpenCV support for setting v4l2 controls is broken
         try:
-            check_call(['v4l2-ctl', '-c', 'exposure_auto=1'])  # For some web cameras
+            check_call(['v4l2-ctl', '-c', 'exposure_auto=1'])  # Some web cams
         except CalledProcessError:
             logging.warning('Device does not provide exposure_auto control')
 
@@ -50,18 +52,20 @@ class VSNPiCamera(VSNCamera):
 
         self.__camera = picamera.PiCamera()
 
-        time.sleep(2)  # Let the camera adjust parameters before disabling auto mode
+        time.sleep(2)  # Let the camera adjust parameters in auto mode
         awb_gains = self.__camera.awb_gains
         self.__camera.awb_mode = 'off'
         self.__camera.awb_gains = awb_gains
         self.__camera.exposure_mode = 'off'
 
-        self.__camera.resolution = (Config.__settings['clients']['image_size']['width'],
-                                    Config.__settings['clients']['image_size']['height'])
+        self.__camera.resolution = (Config['clients']['image_size']['width'],
+                                    Config['clients']['image_size']['height'])
         self.__camera.framerate = Config.__settings['clients']['frame_rate']
-        self.__stream = picamera.array.PiRGBArray(self.__camera,
-                                                  size=(Config.__settings['clients']['image_size']['width'],
-                                                        Config.__settings['clients']['image_size']['height']))
+        self.__stream = picamera.array.PiRGBArray(
+            self.__camera,
+            size=(Config['clients']['image_size']['width'],
+                  Config['clients']['image_size']['height'])
+        )
         self.__current_capture_thread = None
 
         self.__camera.capture(self.__stream, format='bgr', use_video_port=True)

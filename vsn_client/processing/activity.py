@@ -4,25 +4,30 @@ from vsn_client.common.utility import GainSampletimeTuple
 
 
 class VSNActivityController:
-    def __init__(self, parameters_below_threshold, parameters_above_threshold, activation_level_threshold):
-        self.__parameters_below_threshold = GainSampletimeTuple(parameters_below_threshold['gain'],
-                                                                parameters_below_threshold['sample_time'])
-        self.__parameters_above_threshold = GainSampletimeTuple(parameters_above_threshold['gain'],
-                                                                parameters_above_threshold['sample_time'])
+    def __init__(self, parameters_below_threshold, parameters_above_threshold,
+                 activation_level_threshold):
+        self.__parameters_below_threshold = \
+            GainSampletimeTuple(parameters_below_threshold['gain'],
+                                parameters_below_threshold['sample_time'])
+        self.__parameters_above_threshold = \
+            GainSampletimeTuple(parameters_above_threshold['gain'],
+                                parameters_above_threshold['sample_time'])
         self.__activation_level_threshold = activation_level_threshold
 
         self.__percentage_of_active_pixels = 0.0
         self.__activation_level = 0.0  # default starting activation level
         self.__activation_level_d = 0.0
-        self.__parameters = self.__parameters_below_threshold  # sample time and gain at startup
-        self.__activation_neighbours = 0.0  # weighted activity of neighbouring nodes
+        self.__parameters = self.__parameters_below_threshold
+        self.__activation_neighbours = 0.0
 
-    # lowpass filter function modelled after a 1st order inertial object transformed using delta minus method
+    # lowpass filter function modelled after a 1st order inertial object
+    # transformed using delta minus method
     def __lowpass(self, prev_state, input_data, gain):
         time_constant = 0.7
         output = \
             (gain / time_constant) * input_data + \
-            prev_state * pow(math.e, -1.0 * (self.__parameters.sample_time / time_constant))
+            prev_state * pow(math.e, -1.0 *
+                             (self.__parameters.sample_time / time_constant))
         return output
 
     def set_params(self,
@@ -62,7 +67,7 @@ class VSNActivityController:
             result = True
         return result
 
-    def update_sensor_state_based_on_captured_image(self, percentage_of_active_pixels):
+    def update_sensor_state(self, percentage_of_active_pixels):
         # store the incoming data
         self.__percentage_of_active_pixels = percentage_of_active_pixels
         # compute the sensor state based on captured images
@@ -78,7 +83,7 @@ class VSNActivityController:
             self.__activation_level_d,
             1.0
         )
-        # self.__activation_level = activation_level_updated + self.__activation_neighbours
+
         self.__activation_level = activation_level_updated
 
         # update sampling time and gain based on current activity level
