@@ -85,12 +85,6 @@ class Config(metaclass=ConfigMeta):
 
 GainSampletimeTuple = namedtuple('GainSampletimeTuple', ['gain', 'sample_time'])
 
-CameraStatisticsTuple = namedtuple(
-    'CameraStatisticsTuple',
-    ['active_pixels', 'activity_level', 'neighbours_activation', 'gain',
-     'sample_time', 'low_power_ticks', 'normal_ticks']
-   )
-
 
 class ImageType(Enum):
     foreground = 'fg'
