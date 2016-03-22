@@ -16,31 +16,28 @@ class TCPClient(metaclass=ABCMeta):
         if self.__writer is not None:
             self.disconnect()
 
-    @asyncio.coroutine
-    def __connect(self, address: str, port: int):
-        self.__reader, self.__writer = yield from asyncio.open_connection(
+    async def __connect(self, address: str, port: int):
+        self.__reader, self.__writer = await asyncio.open_connection(
             address, port, loop=self._loop)
         self.connection_made()
 
-    @asyncio.coroutine
-    def __send(self, obj: object):
+    async def __send(self, obj: object):
         encoded_data = pickle.dumps(obj)
         self.__writer.write(len(encoded_data).to_bytes(4, byteorder='big') +
                             encoded_data)
 
         try:
-            yield from self.__writer.drain()
+            await self.__writer.drain()
         except (ConnectionResetError, BrokenPipeError):
             self.connection_lost(deliberate=False)
 
-    @asyncio.coroutine
-    def __receive(self):
+    async def __receive(self):
         try:
             while True:
-                encoded_length = yield from self.__reader.readexactly(4)
+                encoded_length = await self.__reader.readexactly(4)
                 length = int.from_bytes(encoded_length, byteorder='big')
 
-                pickled_obj = yield from self.__reader.readexactly(length)
+                pickled_obj = await self.__reader.readexactly(length)
                 obj = pickle.loads(pickled_obj)
                 self.data_received(obj)
         except (asyncio.streams.IncompleteReadError,
