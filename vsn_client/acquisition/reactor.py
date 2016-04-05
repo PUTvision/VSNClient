@@ -1,4 +1,6 @@
 import asyncio
+from concurrent.futures import ThreadPoolExecutor
+
 import cv2
 import logging
 import socket
@@ -30,6 +32,8 @@ class VSNReactor:
         self.__do_regular_update_time = 0
 
         self.__event_loop = asyncio.get_event_loop()
+        self.__stopped = False
+        self.__executor = ThreadPoolExecutor()
 
         if standalone_mode:
             self.__client = None
@@ -46,22 +50,17 @@ class VSNReactor:
                                       ClientPacketRouter(
                                           self.__process_data_packet,
                                           self.__process_configuration_packet,
-                                          self.__process_disconnect_packet))
+                                          self.__process_disconnect_packet
+                                      ))
             self.__waiting_for_configuration = False
 
             self.start = self.__start
 
-    def __do_regular_update(self):
+    async def __update(self):
         current_time = time.perf_counter()
         logging.debug('\nPREVIOUS REGULAR UPDATE WAS %.2f ms AGO' %
                       ((current_time - self.__do_regular_update_time) * 1000))
         self.__do_regular_update_time = current_time
-
-        # Queue the next call
-        self.__update_task = self.__event_loop.call_later(
-            self.__activity_controller.sample_time,
-            self.__do_regular_update
-        )
 
         frame = self.__camera.grab_image(
             slow_mode=self.__activity_controller.activation_is_below_threshold
@@ -69,10 +68,12 @@ class VSNReactor:
 
         time_start = time.perf_counter()
 
-        percentage_of_active_pixels = \
-            self.__image_processor.get_percentage_of_active_pixels_in_frame(
-                frame
-            )
+        percentage_of_active_pixels = await self.__event_loop.run_in_executor(
+            self.__executor,
+            self.__image_processor.get_percentage_of_active_pixels_in_frame,
+            frame
+        )
+
         self.__activity_controller.update_sensor_state(
             percentage_of_active_pixels
         )
@@ -98,9 +99,10 @@ class VSNReactor:
 
         time_after_sending_packet = time.perf_counter()
 
-        logging.debug('Calculating percentage took: %.2f ms' %
-                      ((time_after_get_percentage - time_start) * 1000)
-                      )
+        logging.debug(
+            'Calculating percentage took: %.2f ms' %
+            ((time_after_get_percentage - time_start) * 1000)
+        )
         logging.debug(
             'Encoding took: %.2f ms' %
             ((time_after_encoding - time_after_get_percentage) * 1000)
@@ -110,8 +112,7 @@ class VSNReactor:
             ((time_after_sending_packet - time_after_encoding) * 1000)
         )
         logging.debug(
-            'Percentage of active pixels: %.2f' %
-            (percentage_of_active_pixels)
+            'Percentage of active pixels: %.2f' % percentage_of_active_pixels
         )
 
     def __encode_image_for_sending(self):
@@ -174,30 +175,29 @@ class VSNReactor:
         self.__update_task.cancel()
         self.__client.disconnect()
 
+    async def __run(self):
+        while not self.__stopped:
+            time_start = time.perf_counter()
+            await self.__update()
+            time_end = time.perf_counter()
+
+            await asyncio.sleep(
+                self.__activity_controller.sample_time - (time_end - time_start)
+            )
+
     def __start(self):
         if self.__node_id is not None:
             self.__waiting_for_configuration = False
-            self.__update_task = self.__event_loop.call_soon(
-                self.__activity_controller.sample_time,
-                self.__do_regular_update
-            )
         else:
             self.__waiting_for_configuration = True
 
-        if not self.__event_loop.is_running():
-            try:
-                self.__event_loop.run_forever()
-            except KeyboardInterrupt:
-                exit(0)
+        try:
+            self.__event_loop.run_until_complete(self.__run())
+        except KeyboardInterrupt:
+            self.__stopped = True
 
     def __start_standalone(self):
-        self.__update_task = self.__event_loop.call_later(
-            self.__activity_controller.sample_time,
-            self.__do_regular_update
-        )
-
-        if not self.__event_loop.is_running():
-            try:
-                self.__event_loop.run_forever()
-            except KeyboardInterrupt:
-                exit(0)
+        try:
+            self.__event_loop.run_until_complete(self.__run())
+        except KeyboardInterrupt:
+            self.__stopped = True
