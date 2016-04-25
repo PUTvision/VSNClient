@@ -56,7 +56,7 @@ class Config(metaclass=ConfigMeta):
         parameters_below_threshold['sample_time'] = sample_time_below_threshold
         parameters_above_threshold['gain'] = gain_above_threshold
         parameters_above_threshold['sample_time'] = sample_time_above_threshold
-        clients['activation_level_threshold'] = activation_level_threshold
+        clients['activation_threshold'] = activation_level_threshold
 
         for camera_id, dependencies in dependency_table.items():
             for neighbour_id, dependency_value in dependencies.items():

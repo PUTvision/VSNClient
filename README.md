@@ -40,7 +40,7 @@ prequisitions for those):
 Copy the repository to RaspberryPi (git clone) board and install all the
 libraries required. If you already have the repository, do just git pull.
 Change the hostname of the RPi to one of the following: picam0n (where n is
-number) or switch hostname based ids off in config file.
+number).
 
 Start the server on the central node, and then start client software on each
 RPi.

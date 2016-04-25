@@ -1,7 +1,8 @@
 import asyncio
-import pickle
 
 from abc import ABCMeta, abstractmethod
+
+import msgpack
 
 
 class TCPClient(metaclass=ABCMeta):
@@ -22,7 +23,7 @@ class TCPClient(metaclass=ABCMeta):
         self.connection_made()
 
     async def __send(self, obj: object):
-        encoded_data = pickle.dumps(obj)
+        encoded_data = msgpack.packb(obj, use_bin_type=True)
         self.__writer.write(len(encoded_data).to_bytes(4, byteorder='big') +
                             encoded_data)
 
@@ -37,8 +38,8 @@ class TCPClient(metaclass=ABCMeta):
                 encoded_length = await self.__reader.readexactly(4)
                 length = int.from_bytes(encoded_length, byteorder='big')
 
-                pickled_obj = await self.__reader.readexactly(length)
-                obj = pickle.loads(pickled_obj)
+                obj = msgpack.unpackb(await self.__reader.readexactly(length),
+                                      encoding='utf-8')
                 self.data_received(obj)
         except (asyncio.streams.IncompleteReadError,
                 ConnectionResetError, BrokenPipeError):

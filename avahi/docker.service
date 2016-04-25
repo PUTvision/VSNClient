@@ -1,0 +1,9 @@
+<?xml version="1.0" standalone='no'?>
+<!DOCTYPE service-group SYSTEM "avahi-service.dtd">
+<service-group>
+  <name>Docker Daemon</name>
+  <service>
+    <type>_docker-s._tcp</type>
+    <port>2376</port>
+  </service>
+</service-group>
