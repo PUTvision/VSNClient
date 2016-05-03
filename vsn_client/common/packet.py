@@ -30,7 +30,6 @@ class PacketRouter:
         self.__configuration_packet_callback = configuration_packet_callback
 
     def route_packet(self, packet: Dict[str, Any]):
-        print(packet)
         if packet['_pktype'] == 'cldata':
             self.__data_packet_callback(packet)
         elif packet['_pktype'] == 'clconf':

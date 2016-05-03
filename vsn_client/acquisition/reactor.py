@@ -13,14 +13,13 @@ from vsn_client import __version__
 from vsn_client.common.packet import DataPacket, PacketRouter, \
     ConfigurationPacket
 from vsn_client.common.utility import ImageType, Config
-from vsn_client.connectivity import multicast
 from vsn_client.connectivity.client import VSNClient
 from vsn_client.processing.activity import VSNActivityController
 from vsn_client.processing.image import VSNImageProcessor
 
 
 class VSNReactor:
-    def __init__(self, camera, standalone_mode=False):
+    def __init__(self, camera, server_address: str, standalone_mode=False):
         self.__node_id = None
         self.__camera = camera
         self.__send_image = False  # Default - do not send the image data
@@ -39,14 +38,14 @@ class VSNReactor:
         if standalone_mode:
             self.__client = None
             self.__activity_controller = VSNActivityController(
-                Config['clients']['parameters_below_threshold'],
-                Config['clients']['parameters_above_threshold'],
-                Config['clients']['activation_threshold']
+                Config.parameters_below_threshold,
+                Config.parameters_above_threshold,
+                Config.activation_threshold
             )
 
             self.start = self.__start_standalone
         else:
-            self.__client = VSNClient(multicast.Client().receive_ip(),
+            self.__client = VSNClient(server_address,
                                       50001,
                                       PacketRouter(
                                           self.__process_data_packet,
@@ -126,10 +125,10 @@ class VSNReactor:
 
     def __process_data_packet(self, packet):
         logging.debug('Received neighbour activation: %.2f'
-                      % packet.activation_neighbours)
+                      % packet['activation_neighbours'])
 
         self.__activity_controller.set_params(
-            activation_neighbours=packet.activation_neighbours
+            activation_neighbours=packet['activation_neighbours']
         )
 
     def __process_configuration_packet(self, packet: Dict[str, Any]):
