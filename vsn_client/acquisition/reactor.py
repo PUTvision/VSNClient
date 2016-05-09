@@ -115,11 +115,11 @@ class VSNReactor:
         )
 
     def __encode_image_for_sending(self):
-        encode_param = (int(cv2.IMWRITE_JPEG_QUALITY), 90)
+        # encode_param = (int(cv2.IMWRITE_JPEG_QUALITY), 90)
         image_to_send = self.__image_processor.get_image(self.__image_type)
-        result, image_encoded = cv2.imencode('.jpg', image_to_send,
-                                             encode_param)
-        data = numpy.array(image_encoded)
+        # result, image_encoded = cv2.imencode('.jpg', image_to_send,
+        #                                      encode_param)
+        data = numpy.array(image_to_send)
         image_as_string = data.tostring()
         return image_as_string
 
