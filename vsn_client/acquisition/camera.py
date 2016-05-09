@@ -22,6 +22,10 @@ class VSNCVCamera(VSNCamera):
                           Config.image_size['width'])
         self.__camera.set(cv2.CAP_PROP_FRAME_HEIGHT,
                           Config.image_size['height'])
+        logging.info('Width: {}'.format(
+            self.__camera.get(cv2.CAP_PROP_FRAME_WIDTH)))
+        logging.info('Height: {}'.format(
+            self.__camera.get(cv2.CAP_PROP_FRAME_HEIGHT)))
 
         # OpenCV support for setting v4l2 controls is broken
         try:
